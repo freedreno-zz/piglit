@@ -21,12 +21,15 @@
 # OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-"""This module enables the running of GLSL parser tests.
+"""This module enables the running of GLSL and GLSL ES parser tests.
 
 This module can be used to add parser tests to a Piglit test group or to run
-standalone tests on the command line. To add a test to a Piglit group, us
-``add_glsl_parser_test()``. To run a single standalone test, execute
+standalone tests on the command line. To add a test to a Piglit group, use
+``add_glsl_parser_test()``. To run a single standalone GLSL test, execute
 ``glsl_parser_test.py TEST_FILE``.
+To radd a test to the Piglit group for GLSL ES use
+``add_glsl_es_parser_test()``. To run a single standalone GLSL ES test,
+execute ``glsl_parser_test.py TEST_FILE es``.
 """
 
 usage_message = "usage: glsl_parser_test.py TEST_FILE"
@@ -46,6 +49,10 @@ from exectest import PlainExecTest
 def add_glsl_parser_test(group, filepath, test_name):
 	"""Add an instance of GLSLParserTest to the given group."""
 	group[test_name] = GLSLParserTest(filepath)
+
+def add_glsl_es_parser_test(group, filepath, test_name):
+	"""Add an instance of GLSLESParserTest to the given group."""
+	group[test_name] = GLSLESParserTest(filepath)
 
 def import_glsl_parser_tests(group, basepath, subdirectories):
 	"""
@@ -383,12 +390,108 @@ class GLSLParserTest(PlainExecTest):
 	def env(self):
 		return dict()
 
+class GLSLESParserTest(GLSLParserTest):
+	"""Extend GLSLParserTest by adding support for GLSL ES
+
+	This extension takes a GLSL source file and passes it to
+	``glslparsertest_glesX`` where X is either 2 or 3 for GLES2 or
+	GLES3 respectively.
+
+	Config Section Extensions
+	-------------------------
+	The config section of the ``.vert``, or ``.frag`` is the same as
+	what is required for GLSLParserTest with the following extensions.
+
+	Required Option
+	---------------
+	glsles_version: A valid GLSL ES version number such as 1.00.
+
+	Nonrequired Option
+	------------------
+	glsles_expect_result: Either ``pass`` or ``fail``. If this
+		option is not specified expect_result will be used. This
+		option allows for GLSL and GLSL ES tests to have different
+		results and therefore reuse more testcases.
+
+	Examples
+	--------
+	::
+		// [config]
+		// glsl_version: 1.20
+		// glsl_version: 1.00
+		// expect_result: pass
+		// [end config]
+	::
+		/* [config]
+		 * glsl_version: 1.10
+		 * glsl_version: 1.00
+		 * expect_result: pass
+		 * glsles_expect_result: fail
+		 * [end config]
+		 */
+	"""
+
+	_GLSLParserTest__config_defaults = {
+		'require_extensions' : '',
+		'check_link' : 'false',
+		'glsles_expect_result' : 'ign',
+		'glsles_version' : '0.00'
+		}
+
+	@property
+	def command(self):
+		"""Command line arguments for 'glslparsertest_glesX'.
+
+		The command line arguments are constructed by parsing the
+		config section of the test file. If any errors are present in
+		the config section, then ``self.result`` is set to failure and
+		this returns ``None``.
+
+		:return: [str] or None
+		"""
+
+		if self.result is not None:
+			return None
+
+		assert(self.config is not None)
+
+		if self.config.get('config','glsles_version') == '0.00':
+			return None
+
+		if self.config.get('config','glsles_version') == '1.00':
+			commandstr='glslparsertest_gles2'
+		elif self.config.get('config','glsles_version') == '3.00':
+			commandstr='glslparsertest_gles3'
+
+		if self.config.get('config','glsles_expect_result') != 'ign':
+			resultstr=self.config.get('config','glsles_expect_result')
+		else:
+			resultstr=self.config.get('config', 'expect_result')
+
+		command = [
+			path.join(testBinDir, commandstr),
+			self._GLSLParserTest__filepath,
+			resultstr,
+			self.config.get('config', 'glsles_version')
+			]
+		if self.config.get('config', 'check_link').lower() == 'true':
+			command.append('--check-link')
+		command += self.config.get('config', 'require_extensions').split()
+		return command
+
 if __name__ == '__main__':
-	if len(sys.argv) != 2:
+	arglength=len(sys.argv)
+	if 3 > arglength < 2:
 		sys.stderr.write("{0}: usage error\n\n".format(sys.argv[0]))
 		sys.stderr.write(usage_message)
 	test_file = sys.argv[1]
-	test = GLSLParserTest(test_file)
+	if arglength == 2:
+		test = GLSLParserTest(test_file)
+	elif arglength == 3:
+		if sys.argv[2] == "es":
+			test = GLSLESParserTest(test_file)
+		else:
+			sys.stderr.write("{0}: usage error\n\n".format(sys.argv[0]))
 	test.run_standalone()
 
 # vim: noet ts=8 sw=8:

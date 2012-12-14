@@ -8,6 +8,7 @@
 // [end config]
 
 #version 120
+
 /* PASS */
 
 uniform bool a;

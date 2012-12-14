@@ -1,6 +1,8 @@
 // [config]
 // expect_result: pass
+// glsles_expect_result: false
 // glsl_version: 1.10
+// glsles_version: 1.00
 //
 // # NOTE: Config section was auto-generated from file
 // # NOTE: 'glslparser.tests' at git revision

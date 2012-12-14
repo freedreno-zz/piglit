@@ -8,11 +8,11 @@
 // # NOTE: 6cc17ae70b70d150aa1751f8e28db7b2a9bd50f0
 // [end config]
 
-const struct s {
-    int i;
-} s1 = s(1);
+/* Only one version statement is allowed; two should raise an error. */
+#version 100
+#version 100
 
 void main()
 {
-   s1.i = 1;  // const struct members cannot be modified
+   gl_FragColor = vec4(1);
 }

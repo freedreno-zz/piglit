@@ -1,5 +1,5 @@
 // [config]
-// expect_result: fail
+// expect_result: pass
 // glsl_version: 1.10
 // glsles_version: 1.00
 //
@@ -8,11 +8,15 @@
 // # NOTE: 6cc17ae70b70d150aa1751f8e28db7b2a9bd50f0
 // [end config]
 
-const struct s {
-    int i;
-} s1 = s(1);
+/* #version can only be followed by number 100. The only statements before
+   #version can be comment or white spaces */
+
+
+
+#version 100
+
 
 void main()
 {
-   s1.i = 1;  // const struct members cannot be modified
+   gl_FragColor = vec4(1);
 }

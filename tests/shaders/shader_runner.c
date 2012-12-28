@@ -50,6 +50,9 @@ PIGLIT_GL_TEST_CONFIG_BEGIN
 		get_required_versions(argv[1], &config);
 	else
 		config.supports_gl_compat_version = 10;
+#if defined(PIGLIT_USE_OPENGL_ES2)
+	config.supports_gl_es_version = 20;
+#endif
 
 	config.window_width = 250;
 	config.window_height = 250;

@@ -1,0 +1,37 @@
+[require]
+GLSL >= 1.00 es
+GL >= 2.0 es
+
+[vertex shader]
+attribute vec4 vertex;
+mat4 proj = mat4(
+	2.0/250.0, 0.0, 0.0, -1.0,
+	0.0, 2.0/250.0, 0.0, -1.0,
+	0.0, 0.0, -1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0);
+
+
+const vec4 c = vec4(2, 3, 4, 5);
+const vec4 r = vec4(6, 7, 8, 9);
+uniform mat4x4 expected = mat4x4(12, 18, 24, 30, 14, 21, 28, 35, 16, 24, 32, 40, 18, 27, 36, 45);
+varying vec4 color;
+
+void main() {
+  gl_Position = vertex;
+	gl_Position *= proj;
+  mat4x4 result = outerProduct(c, r);
+  color = (result == expected) ? vec4(0, 1, 0, 1) : vec4(1, 0, 0, 1);
+}
+
+[fragment shader]
+
+varying vec4 color;
+void main() { gl_FragColor = color; }
+
+[test]
+clear color 0.5 0.5 0.5 0.0
+clear
+
+
+draw rect 10 10 10 10
+probe rgb 15 15 0.0 1.0 0.0

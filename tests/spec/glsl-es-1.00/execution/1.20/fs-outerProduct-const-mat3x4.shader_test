@@ -1,0 +1,36 @@
+[require]
+GLSL >= 1.00 es
+GL >= 2.0 es
+# glUniformMatrix3x4fv only exists in OpenGL 2.1 or later.
+
+
+[vertex shader]
+attribute vec4 vertex;
+mat4 proj = mat4(
+	2.0/250.0, 0.0, 0.0, -1.0,
+	0.0, 2.0/250.0, 0.0, -1.0,
+	0.0, 0.0, -1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0);
+
+void main() { gl_Position = vertex;
+	gl_Position *= proj; }
+
+[fragment shader]
+
+
+const vec4 c = vec4(2, 3, 4, 5);
+const vec3 r = vec3(6, 7, 8);
+uniform mat3x4 expected = mat3x4(12, 18, 24, 30, 14, 21, 28, 35, 16, 24, 32, 40);
+
+void main() {
+  mat3x4 result = outerProduct(c, r);
+  gl_FragColor = (result == expected) ? vec4(0, 1, 0, 1) : vec4(1, 0, 0, 1);
+}
+
+[test]
+clear color 0.5 0.5 0.5 0.0
+clear
+
+
+draw rect 10 10 10 10
+probe rgb 15 15 0.0 1.0 0.0

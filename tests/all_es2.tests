@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+
+import itertools
+import os
+import os.path as path
+import platform
+
+from framework.core import *
+from framework.exectest import *
+from framework.glsl_parser_test import GLSLESParserTest, add_glsl_es_parser_test
+from framework.shader_test import add_shader_test, add_shader_test_dir
+# ShaderTest, ShaderES2Test
+
+
+# Blacklisted tests are removed from the test profile.
+blacklist = [ ]
+
+# Path to tests dir, correct even when not running from the top directory.
+testsDir = path.dirname(__file__)
+
+# Find the generated_tests directory, by looking either in
+# $PIGLIT_BUILD_DIR (if that environment variable exists) or in the
+# parent directory of the directory containing this file.
+generatedTestDir = os.path.join(
+    os.environ.get(
+        'PIGLIT_BUILD_DIR',
+        os.path.join(testsDir, '..')),
+    'generated_tests')
+
+# Quick wrapper for PlainExecTest for our usual concurrent args.
+def plain_test(name):
+    return PlainExecTest([name, '-auto'])
+
+def add_single_param_test_set(group, name, *params):
+    for param in params:
+        group[name + '-' + param] = PlainExecTest([name, param, '-auto'])
+
+def add_plain_test(group, name):
+    group[name] = PlainExecTest([name, '-auto'])
+
+def concurrent_test(args):
+    test = PlainExecTest(args.split() + ['-auto', '-fbo'])
+    test.runConcurrent = True
+    return test
+
+def add_concurrent_test(group, args):
+    group[args] = concurrent_test(args)
+
+# Generate all possible subsets of the given set, including the empty set.
+def power_set(s):
+        if len(s) == 0:
+                return [[]]
+        result = []
+        for p in power_set(s[:-1]):
+                result.append(p)
+                result.append(p + [s[-1]])
+        return result
+
+profile = TestProfile()
+
+gles20 = Group()
+spec = Group()
+spec['!OpenGL ES 2.0'] = gles20
+gles20['gles2_sanity_test'] = PlainExecTest(['sanity-test_gles2', '-auto'])
+gles20['gles2_glReadPixels'] = PlainExecTest(['glReadPixels_gles2', '-auto'])
+gles20['gles2_clear_varray-2.0'] = PlainExecTest(['clear-varray-2.0_gles2', '-auto'])
+gles20['gles2_minmax'] = PlainExecTest(['minmax_gles2', '-auto'])
+gles20['gles2-invalid-es3-queries'] = PlainExecTest(['invalid-es3-queries_gles2', '-auto'])
+
+glslparser = Group()
+spec['!glsl es 1.0 parser'] = glslparser
+# Add all shader source files in the directories below for gles20
+for filename in os.listdir(testsDir + '/glslparsertest/shaders'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'glslparsertest/shaders', filename), filename)
+del glslparser['CorrectPreprocess11.frag']
+for filename in os.listdir(testsDir + '/glslparsertest/glsl2'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'glslparsertest/glsl2', filename), 'glsl2/' + filename)
+
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/arithmetic-operators'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/arithmetic-operators', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/assignment-operators'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/assignment-operators', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/built-in-functions'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/built-in-functions', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/clipping'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/clipping', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/qualifiers'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/qualifiers', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/storage-qualifiers'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/storage-qualifiers', filename), filename)
+for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/structure-and-array-operations'):
+	ext = filename.rsplit('.')[-1]
+	if ext in ['vert', 'geo', 'frag']:
+		add_glsl_es_parser_test(glslparser, path.join(testsDir, 'spec/glsl-es-1.00/compiler/structure-and-array-operations', filename), filename)
+
+shader = Group()
+spec['!glsl es 1.0 shader'] = shader
+add_shader_test_dir(shader, os.path.join(testsDir, 'spec', 'glsl-es-1.00','execution'), recursive=True)
+
+#glsl-es-1.00/compiler/arithmetic-operators/
+#add_shader_es2_test_dir(shader, os.path.join(testsDir, 'shaders'), recursive=True)
+#add_shader_es2_test_dir(shader, os.path.join(testsDir, 'spec', 'glsl-1.10', 'execution'), recursive=True)
+#add_shader_es2_test_dir(shader, os.path.join(testsDir, 'spec', 'glsl-1.20', 'execution'), recursive=True)
+#import_glsl_parser_tests(profile.tests, generatedTestDir, ['gles20'])
+
+profile.tests['spec'] = spec

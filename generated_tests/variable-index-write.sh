@@ -450,6 +450,14 @@ else
     esac
 fi
 
+v=${version/./}
+if [ $v -eq 100 ]; then
+	es="-es"
+fi
+
+filepath="spec/glsl"${es}-${version}"/execution/varible-index-write"
+mkdir -p ${filepath}
+
 for mode in temp varying; do
     # More than 3 is unlikely to work for the varying tests due to using too
     # many varying vectors.  mat4[3] uses 12 varying vectors by itself.
@@ -465,57 +473,73 @@ for mode in temp varying; do
 	for matrix_dim in 2 3 4; do
 	    # Fragment shaders cannot write varyings
 	    if [ "x$mode" != "xvarying" ]; then
-		emit_fs_wr_test $matrix_dim $array_dim $mode index col float \
-		    > fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test
+			emit_fs_wr_test $matrix_dim $array_dim $mode index col float \
+		    > ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test
+			echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test"
 
-		emit_fs_wr_test $matrix_dim $array_dim $mode index 1   float \
-		    > fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test
+			emit_fs_wr_test $matrix_dim $array_dim $mode index 1   float \
+		    > ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test
+			echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test"
 
-		emit_fs_wr_test $matrix_dim $array_dim $mode index col vec${matrix_dim} \
-		    > fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test
+			emit_fs_wr_test $matrix_dim $array_dim $mode index col vec${matrix_dim} \
+		    > ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test
+			echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test"
 
-		emit_fs_wr_test $matrix_dim $array_dim $mode index 1   vec${matrix_dim} \
-		    > fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test
+			emit_fs_wr_test $matrix_dim $array_dim $mode index 1   vec${matrix_dim} \
+		    > ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test
+			echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test"
 
-		if [ $array_dim -ne 0 ]; then
-		    emit_fs_wr_test $matrix_dim $array_dim $mode 1 col float \
-			> fs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test
+			if [ $array_dim -ne 0 ]; then
+				emit_fs_wr_test $matrix_dim $array_dim $mode 1 col float \
+				> ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test
+				echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test"
 
-		    emit_fs_wr_test $matrix_dim $array_dim $mode 1 1   float \
-			> fs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test
+				emit_fs_wr_test $matrix_dim $array_dim $mode 1 1   float \
+				> ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test
+				echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test"
 
-		    emit_fs_wr_test $matrix_dim $array_dim $mode 1 col vec${matrix_dim} \
-			> fs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test
+				emit_fs_wr_test $matrix_dim $array_dim $mode 1 col vec${matrix_dim} \
+				> ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test
+				echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test"
 
-		    emit_fs_wr_test $matrix_dim $array_dim $mode 1 1   vec${matrix_dim} \
-			> fs-${mode}-${arr}mat${matrix_dim}-wr.shader_test
-		fi
+				emit_fs_wr_test $matrix_dim $array_dim $mode 1 1   vec${matrix_dim} \
+				> ${filepath}/fs-${mode}-${arr}mat${matrix_dim}-wr.shader_test
+				echo "${filepath}/fs-${mode}-${arr}mat${matrix_dim}-wr.shader_test"
+			fi
 	    fi
 
 	    emit_vs_wr_test $matrix_dim $array_dim $mode index col float \
-		> vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test
+		> ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test
+		echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-row-wr.shader_test"
 
 	    emit_vs_wr_test $matrix_dim $array_dim $mode index 1   float \
-		> vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test
+		> ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test
+		echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}row-wr.shader_test"
 
 	    emit_vs_wr_test $matrix_dim $array_dim $mode index col vec${matrix_dim} \
-		> vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test
+		> ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test
+		echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}col-wr.shader_test"
 
 	    emit_vs_wr_test $matrix_dim $array_dim $mode index 1   vec${matrix_dim} \
-		> vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test
+		> ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test
+		echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-${idx_txt}wr.shader_test"
 
 	    if [ $array_dim -ne 0 ]; then
-		emit_vs_wr_test $matrix_dim $array_dim $mode 1 col float \
-		    > vs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test
+			emit_vs_wr_test $matrix_dim $array_dim $mode 1 col float \
+		    > ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test
+			echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-col-row-wr.shader_test"
 
-		emit_vs_wr_test $matrix_dim $array_dim $mode 1 1   float \
-		    > vs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test
+			emit_vs_wr_test $matrix_dim $array_dim $mode 1 1   float \
+		    > ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test
+			echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-row-wr.shader_test"
 
-		emit_vs_wr_test $matrix_dim $array_dim $mode 1 col vec${matrix_dim} \
-		    > vs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test
+			emit_vs_wr_test $matrix_dim $array_dim $mode 1 col vec${matrix_dim} \
+		    > ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test
+			echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-col-wr.shader_test"
 
-		emit_vs_wr_test $matrix_dim $array_dim $mode 1 1   vec${matrix_dim} \
-		    > vs-${mode}-${arr}mat${matrix_dim}-wr.shader_test
+			emit_vs_wr_test $matrix_dim $array_dim $mode 1 1   vec${matrix_dim} \
+		    > ${filepath}/vs-${mode}-${arr}mat${matrix_dim}-wr.shader_test
+			echo "${filepath}/vs-${mode}-${arr}mat${matrix_dim}-wr.shader_test"
 	    fi
 	done
     done

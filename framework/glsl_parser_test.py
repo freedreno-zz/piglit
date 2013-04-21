@@ -368,8 +368,14 @@ class GLSLParserTest(PlainExecTest):
 			return None
 
 		assert(self.config is not None)
+
+		if self.config.get('config', 'glsl_version') == '1.00':
+			runner = "glslparsertest_gles2"
+		else:
+			runner = "glslparsertest"
+
 		command = [
-			path.join(testBinDir, 'glslparsertest'),
+			path.join(testBinDir, runner),
 			self.__filepath,
 			self.config.get('config', 'expect_result'),
 			self.config.get('config', 'glsl_version')

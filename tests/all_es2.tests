@@ -112,6 +112,7 @@ for filename in os.listdir(testsDir + '/spec/glsl-es-1.00/compiler/structure-and
 shader = Group()
 spec['!glsl es 1.0 shader'] = shader
 add_shader_test_dir(shader, os.path.join(testsDir, 'spec', 'glsl-es-1.00','execution'), recursive=True)
+add_shader_test_dir(shader, os.path.join(generatedTestDir, 'spec', 'glsl-es-1.00','execution'), recursive=True)
 
 #glsl-es-1.00/compiler/arithmetic-operators/
 #add_shader_es2_test_dir(shader, os.path.join(testsDir, 'shaders'), recursive=True)

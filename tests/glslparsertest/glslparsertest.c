@@ -221,6 +221,16 @@ test(void)
 	}
 
 	prog = glCreateShader(type);
+#if defined PIGLIT_USE_OPENGL_ES2
+	if (type == GL_FRAGMENT_SHADER) {
+		const GLchar *prog_strings[] = {
+			"precision mediump float;\n",
+			"precision mediump int;\n",
+			prog_string,
+		};
+		glShaderSource(prog, 3, prog_strings, NULL);
+	} else
+#endif
 	glShaderSource(prog, 1, (const GLchar **)&prog_string, NULL);
 	glCompileShader(prog);
 	ok = get_shader_compile_status(prog);

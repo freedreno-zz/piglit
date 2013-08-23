@@ -1,6 +1,6 @@
 [require]
-GLSL >= 1.00 es
-GL >= 2.0 es
+GLSL >= 1.00
+GL >= 2.0
 # glUniformMatrix4x3fv only exists in OpenGL 2.1 or later.
 
 

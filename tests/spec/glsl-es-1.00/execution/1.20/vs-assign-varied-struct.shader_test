@@ -5,8 +5,8 @@
 # https://bugs.freedesktop.org/show_bug.cgi?id=40865#c9.
 
 [require]
-GLSL >= 1.00 es
-GL >= 2.0 es
+GLSL ES >= 1.00
+GL ES >= 2.0
 
 [vertex shader]
 attribute vec4 vertex;
